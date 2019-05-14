@@ -1,0 +1,37 @@
+image: alpine
+
+stages:
+  - sync
+
+sync:
+  stage: sync
+  variables:
+    GIT_STRATEGY: none
+    CI_REPO: git@gitlab.com:autowarefoundation/core_perception.git
+    PUBLIC_REPO: git@github.com:autowarefoundation/core_perception.git
+    PR_ID: 0
+  before_script:
+    # Add ssh client
+    - apk --update add openssh-client
+    # Add bash
+    - apk add --update bash
+    # Add git
+    - apk add --update git
+    - '[ ${PR_ID} -eq 0 ] && echo "Pull request ID not set" && exit'
+    - echo "Creating branch for Pull request \#${PR_ID}"
+    - eval $(ssh-agent -s)
+    - echo "${BOT_KEY}" | tr -d '\r' | ssh-add - >/dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -t rsa gitlab.com github.com >>~/.ssh/known_hosts
+    - git config --global user.name "${BOT_USER}"
+    - git config --global user.email "${BOT_EMAIL}"
+    - git config --global pull.rebase "preserve"
+  script:
+    - git clone ${CI_REPO} repo
+    - cd repo
+    - git fetch ${PUBLIC_REPO} pull/${PR_ID}/head:pr_${PR_ID}_build
+    - git checkout pr_${PR_ID}_build
+    - git push --force origin pr_${PR_ID}_build
+  only:
+    - check_pr
