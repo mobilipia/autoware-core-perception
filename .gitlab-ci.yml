@@ -75,23 +75,27 @@ build_cross:
   variables:
     ROS_DISTRO: kinetic
     AUTOWARE_DOCKER_DATE: 20190211
-    AUTOWARE_HOME: $CI_PROJECT_DIR
+    AUTOWARE_HOME: $CI_PROJECT_DIR/..
     AUTOWARE_TARGET_ARCH: aarch64
     AUTOWARE_TARGET_PLATFORM: generic-aarch64
-    AUTOWARE_BUILD_PATH: $CI_PROJECT_DIR/ros/build-${AUTOWARE_TARGET_PLATFORM}
-    AUTOWARE_INSTALL_PATH: $CI_PROJECT_DIR/ros/install-${AUTOWARE_TARGET_PLATFORM}
-    AUTOWARE_TOOLCHAIN_FILE_PATH: $CI_PROJECT_DIR/ros/cross_toolchain.cmake
+    AUTOWARE_BUILD_PATH: $CI_PROJECT_DIR/build-${AUTOWARE_TARGET_PLATFORM}
+    AUTOWARE_INSTALL_PATH: $CI_PROJECT_DIR/install-${AUTOWARE_TARGET_PLATFORM}
+    AUTOWARE_TOOLCHAIN_FILE_PATH: $CI_PROJECT_DIR/cross_toolchain.cmake
     AUTOWARE_SYSROOT: /sysroot/${AUTOWARE_TARGET_PLATFORM}
   script:
     # - ${AUTOWARE_HOME}/docker/crossbuild/build_cross_image.sh
+    - wget https://raw.githubusercontent.com/autowarefoundation/autoware/master/ros/cross_toolchain.cmake  
     - 'docker run
           -e AUTOWARE_SYSROOT=${AUTOWARE_SYSROOT}
           --rm
           -v ${AUTOWARE_HOME}:${AUTOWARE_HOME}
-          -w ${AUTOWARE_HOME}/ros
+          -w ${AUTOWARE_HOME}
           autoware/build:generic-aarch64-kinetic-20190306
           bash
             -c "
+                cd $CI_PROJECT_DIR/.. &&
+                apt-get update && apt-get install -y git &&
+                git clone https://github.com/autowarefoundation/messages.git &&
                 source ${AUTOWARE_SYSROOT}/opt/ros/kinetic/setup.bash &&
                 colcon build
                     --merge-install
