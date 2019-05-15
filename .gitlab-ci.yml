@@ -95,6 +95,7 @@ build_cross:
             -c "
                 cd $CI_PROJECT_DIR/.. &&
                 apt-get update && apt-get install -y git &&
+                git clone https://github.com/autowarefoundation/common.git &&
                 git clone https://github.com/autowarefoundation/messages.git &&
                 source ${AUTOWARE_SYSROOT}/opt/ros/kinetic/setup.bash &&
                 colcon build
