@@ -39,9 +39,9 @@ build_kinetic:
     - rm -r lcov
     - cd $CI_PROJECT_DIR/..
   # Clone common
-    - git clone https://github.com/sgermanserrano/common.git -b feature/move_pkgs
+    - git clone https://github.com/autowarefoundation/common.git
   # Clone messages
-    - git clone https://github.com/sgermanserrano/messages.git
+    - git clone https://github.com/autowarefoundation/messages.git
   # We first build the entire workspace normally
     - colcon build --cmake-args -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage" -DCMAKE_BUILD_TYPE=Debug
   # And then build the tests target. catkin (ROS1) packages add their tests to the tests target
